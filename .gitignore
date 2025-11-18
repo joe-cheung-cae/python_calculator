@@ -1,0 +1,22 @@
+# Python cache
+__pycache__/
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment files
+.env
+.venv/
+venv/
+ENV/
+env/

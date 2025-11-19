@@ -35,7 +35,7 @@ def find_params_for_peak(target_x, target_y, initial_guess=[2.0, 1.0]):
         return initial_guess  # fallback
 
 
-def update_plot(peak_x1, peak_y1, peak_x2, peak_y2, weight_k1=0.5):
+def update_plot(peak_x1, peak_y1, peak_x2, peak_y2, weight_k1=0.5, update_boxes=True):
     """Update the plot with new parameters for both distributions and their weighted sum"""
     if peak_x1 <= 0 or peak_y1 <= 0 or peak_x2 <= 0 or peak_y2 <= 0:
         return  # Skip invalid parameters
@@ -111,33 +111,74 @@ def update_plot(peak_x1, peak_y1, peak_x2, peak_y2, weight_k1=0.5):
     ax2.grid(True)
     fig.canvas.draw_idle()
 
-def on_peak_x1_change(val):
-    """Callback for peak x slider of distribution 1"""
-    update_plot(val, peak_y1_slider.val, peak_x2_slider.val, peak_y2_slider.val, weight_slider.val)
 
-def on_peak_y1_change(val):
-    """Callback for peak y slider of distribution 1"""
-    update_plot(peak_x1_slider.val, val, peak_x2_slider.val, peak_y2_slider.val, weight_slider.val)
+def on_val_x1_change(text):
+    """Callback for value input of peak x1"""
+    global current_peak_x1
+    try:
+        val = float(text)
+        if peak_x1_min <= val <= peak_x1_max:
+            current_peak_x1 = val
+            val_x1_box.set_val(f"{val:.2f}")
+            update_plot(current_peak_x1, current_peak_y1, current_peak_x2, current_peak_y2, current_weight, update_boxes=False)
+    except ValueError:
+        pass
 
-def on_peak_x2_change(val):
-    """Callback for peak x slider of distribution 2"""
-    update_plot(peak_x1_slider.val, peak_y1_slider.val, val, peak_y2_slider.val, weight_slider.val)
+def on_val_y1_change(text):
+    """Callback for value input of peak y1"""
+    global current_peak_y1
+    try:
+        val = float(text)
+        if peak_y1_min <= val <= peak_y1_max:
+            current_peak_y1 = val
+            val_y1_box.set_val(f"{val:.2f}")
+            update_plot(current_peak_x1, current_peak_y1, current_peak_x2, current_peak_y2, current_weight, update_boxes=False)
+    except ValueError:
+        pass
 
-def on_peak_y2_change(val):
-    """Callback for peak y slider of distribution 2"""
-    update_plot(peak_x1_slider.val, peak_y1_slider.val, peak_x2_slider.val, val, weight_slider.val)
+def on_val_x2_change(text):
+    """Callback for value input of peak x2"""
+    global current_peak_x2
+    try:
+        val = float(text)
+        if peak_x2_min <= val <= peak_x2_max:
+            current_peak_x2 = val
+            val_x2_box.set_val(f"{val:.2f}")
+            update_plot(current_peak_x1, current_peak_y1, current_peak_x2, current_peak_y2, current_weight, update_boxes=False)
+    except ValueError:
+        pass
 
-def on_weight_change(val):
-    """Callback for weight parameter slider"""
-    update_plot(peak_x1_slider.val, peak_y1_slider.val, peak_x2_slider.val, peak_y2_slider.val, val)
+def on_val_y2_change(text):
+    """Callback for value input of peak y2"""
+    global current_peak_y2
+    try:
+        val = float(text)
+        if peak_y2_min <= val <= peak_y2_max:
+            current_peak_y2 = val
+            val_y2_box.set_val(f"{val:.2f}")
+            update_plot(current_peak_x1, current_peak_y1, current_peak_x2, current_peak_y2, current_weight, update_boxes=False)
+    except ValueError:
+        pass
+
+def on_val_weight_change(text):
+    """Callback for value input of weight"""
+    global current_weight
+    try:
+        val = float(text)
+        if 0.0 <= val <= 1.0:
+            current_weight = val
+            val_weight_box.set_val(f"{val:.2f}")
+            update_plot(current_peak_x1, current_peak_y1, current_peak_x2, current_peak_y2, current_weight, update_boxes=False)
+    except ValueError:
+        pass
 
 def export_data(event):
     """Export current data to CSV for both distributions and weighted sum"""
-    peak_x1 = peak_x1_slider.val
-    peak_y1 = peak_y1_slider.val
-    peak_x2 = peak_x2_slider.val
-    peak_y2 = peak_y2_slider.val
-    weight_k1 = weight_slider.val
+    peak_x1 = current_peak_x1
+    peak_y1 = current_peak_y1
+    peak_x2 = current_peak_x2
+    peak_y2 = current_peak_y2
+    weight_k1 = current_weight
     weight_k2 = 1.0 - weight_k1
 
     # Find parameters
@@ -158,57 +199,35 @@ def export_data(event):
             writer.writerow([xi, pdf1i, pdf2i, wsumi, weight_k1, weight_k2])
     print(f"Data exported to {filename}")
 
-def update_slider_ranges():
-    """Update slider ranges based on text box values"""
+def update_ranges():
+    """Update ranges based on text box values"""
+    global peak_x1_min, peak_x1_max, peak_y1_min, peak_y1_max
+    global peak_x2_min, peak_x2_max, peak_y2_min, peak_y2_max
     try:
-        peak_x1_min = float(peak_x1_min_box.text)
-        peak_x1_max = float(peak_x1_max_box.text)
-        peak_y1_min = float(peak_y1_min_box.text)
-        peak_y1_max = float(peak_y1_max_box.text)
-        peak_x2_min = float(peak_x2_min_box.text)
-        peak_x2_max = float(peak_x2_max_box.text)
-        peak_y2_min = float(peak_y2_min_box.text)
-        peak_y2_max = float(peak_y2_max_box.text)
+        new_peak_x1_min = float(peak_x1_min_box.text)
+        new_peak_x1_max = float(peak_x1_max_box.text)
+        new_peak_y1_min = float(peak_y1_min_box.text)
+        new_peak_y1_max = float(peak_y1_max_box.text)
+        new_peak_x2_min = float(peak_x2_min_box.text)
+        new_peak_x2_max = float(peak_x2_max_box.text)
+        new_peak_y2_min = float(peak_y2_min_box.text)
+        new_peak_y2_max = float(peak_y2_max_box.text)
 
-        if (peak_x1_min >= peak_x1_max or peak_x1_min <= 0 or
-            peak_y1_min >= peak_y1_max or peak_y1_min <= 0 or
-            peak_x2_min >= peak_x2_max or peak_x2_min <= 0 or
-            peak_y2_min >= peak_y2_max or peak_y2_min <= 0):
+        if (new_peak_x1_min >= new_peak_x1_max or new_peak_x1_min <= 0 or
+            new_peak_y1_min >= new_peak_y1_max or new_peak_y1_min <= 0 or
+            new_peak_x2_min >= new_peak_x2_max or new_peak_x2_min <= 0 or
+            new_peak_y2_min >= new_peak_y2_max or new_peak_y2_min <= 0):
             return  # Invalid ranges
 
-        # Update distribution 1 sliders
-        peak_x1_slider.valmin = peak_x1_min
-        peak_x1_slider.valmax = peak_x1_max
-        peak_x1_slider.ax.set_xlim(peak_x1_min, peak_x1_max)
-        if peak_x1_slider.val < peak_x1_min:
-            peak_x1_slider.set_val(peak_x1_min)
-        elif peak_x1_slider.val > peak_x1_max:
-            peak_x1_slider.set_val(peak_x1_max)
-
-        peak_y1_slider.valmin = peak_y1_min
-        peak_y1_slider.valmax = peak_y1_max
-        peak_y1_slider.ax.set_xlim(peak_y1_min, peak_y1_max)
-        if peak_y1_slider.val < peak_y1_min:
-            peak_y1_slider.set_val(peak_y1_min)
-        elif peak_y1_slider.val > peak_y1_max:
-            peak_y1_slider.set_val(peak_y1_max)
-
-        # Update distribution 2 sliders
-        peak_x2_slider.valmin = peak_x2_min
-        peak_x2_slider.valmax = peak_x2_max
-        peak_x2_slider.ax.set_xlim(peak_x2_min, peak_x2_max)
-        if peak_x2_slider.val < peak_x2_min:
-            peak_x2_slider.set_val(peak_x2_min)
-        elif peak_x2_slider.val > peak_x2_max:
-            peak_x2_slider.set_val(peak_x2_max)
-
-        peak_y2_slider.valmin = peak_y2_min
-        peak_y2_slider.valmax = peak_y2_max
-        peak_y2_slider.ax.set_xlim(peak_y2_min, peak_y2_max)
-        if peak_y2_slider.val < peak_y2_min:
-            peak_y2_slider.set_val(peak_y2_min)
-        elif peak_y2_slider.val > peak_y2_max:
-            peak_y2_slider.set_val(peak_y2_max)
+        # Update global ranges
+        peak_x1_min = new_peak_x1_min
+        peak_x1_max = new_peak_x1_max
+        peak_y1_min = new_peak_y1_min
+        peak_y1_max = new_peak_y1_max
+        peak_x2_min = new_peak_x2_min
+        peak_x2_max = new_peak_x2_max
+        peak_y2_min = new_peak_y2_min
+        peak_y2_max = new_peak_y2_max
 
         fig.canvas.draw_idle()
     except ValueError:
@@ -216,12 +235,16 @@ def update_slider_ranges():
 
 def on_range_change(text):
     """Callback for range text boxes"""
-    update_slider_ranges()
+    update_ranges()
 
 def main():
-    global fig, ax1, ax2, peak_x1_slider, peak_y1_slider, peak_x2_slider, peak_y2_slider, weight_slider
+    global fig, ax1, ax2
     global peak_x1_min_box, peak_x1_max_box, peak_y1_min_box, peak_y1_max_box
     global peak_x2_min_box, peak_x2_max_box, peak_y2_min_box, peak_y2_max_box
+    global val_x1_box, val_y1_box, val_x2_box, val_y2_box, val_weight_box
+    global current_peak_x1, current_peak_y1, current_peak_x2, current_peak_y2, current_weight
+    global peak_x1_min, peak_x1_max, peak_y1_min, peak_y1_max
+    global peak_x2_min, peak_x2_max, peak_y2_min, peak_y2_max
 
     # Create figure with two subplots and space below for controls (1920x1080 optimized)
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(19.2, 10.8))
@@ -243,33 +266,50 @@ def main():
     # Initial weight parameter
     weight_init = 0.5
 
+    # Set global current values
+    current_peak_x1 = peak_x1_init
+    current_peak_y1 = peak_y1_init
+    current_peak_x2 = peak_x2_init
+    current_peak_y2 = peak_y2_init
+    current_weight = weight_init
+
+    # Set global ranges
+    peak_x1_min = peak_x1_min_init
+    peak_x1_max = peak_x1_max_init
+    peak_y1_min = peak_y1_min_init
+    peak_y1_max = peak_y1_max_init
+    peak_x2_min = peak_x2_min_init
+    peak_x2_max = peak_x2_max_init
+    peak_y2_min = peak_y2_min_init
+    peak_y2_max = peak_y2_max_init
+
     # Initial plot
-    update_plot(peak_x1_init, peak_y1_init, peak_x2_init, peak_y2_init, weight_init)
+    update_plot(current_peak_x1, current_peak_y1, current_peak_x2, current_peak_y2, current_weight)
 
-    # Create sliders for distribution 1 (left side)
-    ax_peak_x1 = plt.axes([0.1, 0.33, 0.35, 0.03])
-    peak_x1_slider = widgets.Slider(ax_peak_x1, 'Dist1 Peak X', peak_x1_min_init, peak_x1_max_init, valinit=peak_x1_init, valstep=0.1)
 
-    ax_peak_y1 = plt.axes([0.1, 0.28, 0.35, 0.03])
-    peak_y1_slider = widgets.Slider(ax_peak_y1, 'Dist1 Peak Y', peak_y1_min_init, peak_y1_max_init, valinit=peak_y1_init, valstep=0.01)
+    # Create value input boxes
+    ax_val_x1 = plt.axes([0.1, 0.33, 0.35, 0.03])
+    val_x1_box = widgets.TextBox(ax_val_x1, 'Dist1 Peak X:', initial=f"{peak_x1_init:.2f}")
 
-    # Create sliders for distribution 2 (right side)
-    ax_peak_x2 = plt.axes([0.55, 0.33, 0.35, 0.03])
-    peak_x2_slider = widgets.Slider(ax_peak_x2, 'Dist2 Peak X', peak_x2_min_init, peak_x2_max_init, valinit=peak_x2_init, valstep=0.1)
+    ax_val_y1 = plt.axes([0.1, 0.28, 0.35, 0.03])
+    val_y1_box = widgets.TextBox(ax_val_y1, 'Dist1 Peak Y:', initial=f"{peak_y1_init:.2f}")
 
-    ax_peak_y2 = plt.axes([0.55, 0.28, 0.35, 0.03])
-    peak_y2_slider = widgets.Slider(ax_peak_y2, 'Dist2 Peak Y', peak_y2_min_init, peak_y2_max_init, valinit=peak_y2_init, valstep=0.01)
+    ax_val_x2 = plt.axes([0.55, 0.33, 0.35, 0.03])
+    val_x2_box = widgets.TextBox(ax_val_x2, 'Dist2 Peak X:', initial=f"{peak_x2_init:.2f}")
 
-    # Create weight slider (center bottom)
-    ax_weight = plt.axes([0.3, 0.15, 0.4, 0.03])
-    weight_slider = widgets.Slider(ax_weight, 'Weight k1 (k2=1-k1)', 0.0, 1.0, valinit=weight_init, valstep=0.01)
+    ax_val_y2 = plt.axes([0.55, 0.28, 0.35, 0.03])
+    val_y2_box = widgets.TextBox(ax_val_y2, 'Dist2 Peak Y:', initial=f"{peak_y2_init:.2f}")
 
-    # Connect sliders to update function
-    peak_x1_slider.on_changed(on_peak_x1_change)
-    peak_y1_slider.on_changed(on_peak_y1_change)
-    peak_x2_slider.on_changed(on_peak_x2_change)
-    peak_y2_slider.on_changed(on_peak_y2_change)
-    weight_slider.on_changed(on_weight_change)
+    ax_val_weight = plt.axes([0.3, 0.15, 0.4, 0.03])
+    val_weight_box = widgets.TextBox(ax_val_weight, 'Weight k1 (k2=1-k1):', initial=f"{weight_init:.2f}")
+
+
+    # Connect value text boxes
+    val_x1_box.on_submit(on_val_x1_change)
+    val_y1_box.on_submit(on_val_y1_change)
+    val_x2_box.on_submit(on_val_x2_change)
+    val_y2_box.on_submit(on_val_y2_change)
+    val_weight_box.on_submit(on_val_weight_change)
 
     # Create range input boxes for distribution 1 (left side)
     ax_peak_x1_min = plt.axes([0.1, 0.38, 0.12, 0.03])

@@ -84,7 +84,7 @@ class PopulationBalanceModel:
 
 # Example usage
 if __name__ == "__main__":
-    pbm = PopulationBalanceModel('weibull_data.csv')
+    pbm = PopulationBalanceModel('input/weibull_data.csv')
     t = np.linspace(0, 1, 11)  # evolve from 0 to 1 time units
     sol = pbm.evolve(t)
     # Export final distribution

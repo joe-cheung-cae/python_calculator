@@ -2,6 +2,7 @@ import numpy as np
 import csv
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
+import os
 
 class PopulationBalanceModel:
     def __init__(self, csv_file, kernel_type='constant', kernel_value=1.0):
@@ -74,6 +75,7 @@ class PopulationBalanceModel:
         """
         Export the distribution to CSV
         """
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['x', 'n'])
@@ -86,7 +88,7 @@ if __name__ == "__main__":
     t = np.linspace(0, 1, 11)  # evolve from 0 to 1 time units
     sol = pbm.evolve(t)
     # Export final distribution
-    pbm.export_distribution(sol[-1], 'evolved_distribution.csv')
+    pbm.export_distribution(sol[-1], 'output/evolved_distribution.csv')
 
     # Visualization
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
@@ -108,5 +110,6 @@ if __name__ == "__main__":
     ax2.grid(True)
 
     plt.tight_layout()
-    plt.savefig('pbm_evolution.png')
+    os.makedirs('output', exist_ok=True)
+    plt.savefig('output/pbm_evolution.png')
     plt.show()

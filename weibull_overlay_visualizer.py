@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.widgets as widgets
 import numpy as np
 import csv
+import os
 def weibull_peak_constant(k):
     """Compute the constant part of Weibull peak value for given shape parameter k"""
     if k <= 1:
@@ -191,7 +192,8 @@ def export_data(event):
     pdf2 = scipy.stats.weibull_min.pdf(x, c=k2, scale=lam2)
     pdf_weighted_sum = weight_k1 * pdf1 + weight_k2 * pdf2
 
-    filename = 'weibull_overlay_data.csv'
+    os.makedirs('output', exist_ok=True)
+    filename = 'output/weibull_overlay_data.csv'
     with open(filename, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(['x', 'pdf1', 'pdf2', 'pdf_weighted_sum', 'weight_k1', 'weight_k2'])

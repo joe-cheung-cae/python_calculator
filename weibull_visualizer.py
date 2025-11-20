@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.widgets as widgets
 import numpy as np
 import csv
+import os
 
 def update_plot(k, lam):
     """Update the plot with new parameters"""
@@ -34,7 +35,8 @@ def export_data(event):
     x = np.linspace(0, lam * 5, 1000)
     pdf = scipy.stats.weibull_min.pdf(x, c=k, scale=lam)
 
-    filename = 'weibull_data.csv'
+    os.makedirs('output', exist_ok=True)
+    filename = 'output/weibull_data.csv'
     with open(filename, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(['x', 'pdf'])

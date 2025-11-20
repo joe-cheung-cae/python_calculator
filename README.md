@@ -35,6 +35,14 @@ This project provides tools for visualizing Weibull probability distributions an
 - Preserves the same x-range as input data
 - Command-line interface for easy usage
 
+### Weibull PIT Converter (`weibull_pit_converter.py`)
+- Transform raw data to Weibull distribution using Probability Integral Transform (PIT)
+- Input: CSV file with single column of raw data values
+- Output: CSV file with transformed Weibull data
+- Specify Weibull shape (c) and scale parameters
+- Uses empirical CDF to convert data to uniform distribution, then to Weibull
+- Command-line interface with optional plotting
+
 ### Population Balance Model (`pbm_model.py`)
 - Implementation of Smoluchowski aggregation equation
 - Time evolution of particle size distributions
@@ -124,6 +132,30 @@ This will:
 **Output format**: CSV file with columns `x,pdf` containing the fitted Weibull distribution
 **Plot output**: PNG file with comparison visualization showing smoothed curves and original data points (same name as output CSV but with `_comparison.png` extension)
 
+### Weibull PIT Converter
+
+Transform raw data to Weibull distribution:
+
+```bash
+python weibull_pit_converter.py input/raw_data.csv output/weibull_transformed.csv --c 2.0 --scale 1.5
+```
+
+With visualization:
+
+```bash
+python weibull_pit_converter.py input/raw_data.csv output/weibull_transformed.csv --c 2.0 --scale 1.5 --plot
+```
+
+This will:
+- Read raw data from `input/raw_data.csv` (single column of numeric values)
+- Apply PIT transformation to convert to Weibull distribution with specified parameters
+- Export transformed data to `output/weibull_transformed.csv`
+- With `--plot`: Generate histograms comparing original and transformed data
+
+**Input format**: CSV file with single column of raw data values
+**Output format**: CSV file with single column `value` containing transformed Weibull data
+**Plot output**: PNG file with side-by-side histograms and Weibull PDF curve overlaid on transformed data (same name as output CSV but with `_comparison.png` extension)
+
 ### Population Balance Model
 
 The PBM can be run as a script or imported as a module:
@@ -170,6 +202,33 @@ Convert any custom distribution:
 python distribution_converter.py input/my_custom_distribution.csv output/weibull_fit.csv --plot
 ```
 
+### Testing Weibull PIT Converter
+
+Test with various distributions (sample data provided in `input/` directory):
+
+```bash
+# Test with normal distribution
+python weibull_pit_converter.py input/normal_data.csv output/normal_weibull.csv --c 1.5 --scale 2.0 --plot
+
+# Test with beta distribution
+python weibull_pit_converter.py input/beta_data.csv output/beta_weibull.csv --c 2.0 --scale 1.0 --plot
+
+# Test with gamma distribution
+python weibull_pit_converter.py input/gamma_data.csv output/gamma_weibull.csv --c 2.5 --scale 1.5 --plot
+
+# Test with uniform distribution
+python weibull_pit_converter.py input/uniform_data.csv output/uniform_weibull.csv --c 1.8 --scale 2.2 --plot
+```
+
+Available test datasets:
+- `normal_data.csv`: Normal distribution (μ=5, σ=2)
+- `uniform_data.csv`: Uniform distribution (0-10)
+- `beta_data.csv`: Beta distribution (α=2, β=5)
+- `gamma_data.csv`: Gamma distribution (shape=2, scale=2)
+- `lognormal_data.csv`: Log-normal distribution (μ=0, σ=1)
+- `chisquare_data.csv`: Chi-square distribution (df=3)
+- `sample_raw_data.csv`: Exponential distribution (λ=0.5)
+
 ### Running PBM Simulation
 
 ```python
@@ -190,6 +249,7 @@ pbm.export_distribution(evolved_distributions[-1], 'final_distribution.csv')
 ## File Descriptions
 
 - `distribution_converter.py`: Convert any distribution to Weibull distribution
+- `weibull_pit_converter.py`: Transform raw data to Weibull using Probability Integral Transform
 - `weibull_visualizer.py`: Interactive single Weibull distribution visualizer
 - `weibull_overlay_visualizer.py`: Interactive two-distribution overlay visualizer
 - `normal_visualizer.py`: Interactive single Normal distribution visualizer

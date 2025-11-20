@@ -20,6 +20,21 @@ This project provides tools for visualizing Weibull probability distributions an
 - Automatic parameter calculation from peak coordinates
 - Export combined data to CSV
 
+### Normal Visualizer (`normal_visualizer.py`)
+- Interactive visualization of Normal distributions
+- Adjustable mean (μ) and standard deviation (σ) parameters via sliders
+- Real-time PDF plotting
+- Export functionality to CSV format
+- Customizable parameter ranges
+
+### Distribution Converter (`distribution_converter.py`)
+- Convert any statistical distribution to Weibull distribution
+- Input: CSV file with x,pdf columns (any distribution type)
+- Output: CSV file with fitted Weibull distribution
+- Uses maximum likelihood estimation for parameter fitting
+- Preserves the same x-range as input data
+- Command-line interface for easy usage
+
 ### Population Balance Model (`pbm_model.py`)
 - Implementation of Smoluchowski aggregation equation
 - Time evolution of particle size distributions
@@ -71,6 +86,44 @@ Features:
 - View individual distributions and their weighted sum
 - Export data to `weibull_overlay_data.csv`
 
+### Normal Visualizer
+
+Run the interactive Normal distribution visualizer:
+
+```bash
+python normal_visualizer.py
+```
+
+This opens an interactive window where you can:
+- Adjust mean parameter (μ) and standard deviation parameter (σ) using sliders
+- Modify slider ranges using text boxes
+- Export the current distribution to `normal_data.csv`
+
+### Distribution Converter
+
+Convert any distribution to Weibull distribution:
+
+```bash
+python distribution_converter.py input/normal_data.csv output/weibull_fit.csv
+```
+
+With visualization:
+
+```bash
+python distribution_converter.py input/normal_data.csv output/weibull_fit.csv --plot
+```
+
+This will:
+- Read the input distribution from `input/normal_data.csv`
+- Fit Weibull parameters using maximum likelihood estimation
+- Generate Weibull distribution data over the same x-range
+- Export the result to `output/weibull_fit.csv`
+- With `--plot`: Generate a comparison plot showing input vs fitted Weibull distributions
+
+**Input format**: CSV file with columns `x,pdf` (same as other tools in this project)
+**Output format**: CSV file with columns `x,pdf` containing the fitted Weibull distribution
+**Plot output**: PNG file with comparison visualization showing smoothed curves and original data points (same name as output CSV but with `_comparison.png` extension)
+
 ### Population Balance Model
 
 The PBM can be run as a script or imported as a module:
@@ -93,6 +146,30 @@ This will:
 2. Adjust parameters (e.g., k=2.0, λ=1.414)
 3. Click "Export to CSV" to create `weibull_data.csv`
 
+### Converting Distributions to Weibull
+
+Convert a normal distribution to Weibull:
+
+```bash
+# First create some input data (e.g., using normal_visualizer.py)
+python normal_visualizer.py  # Export to create normal_data.csv
+
+# Then convert it to Weibull
+python distribution_converter.py input/normal_data.csv output/weibull_from_normal.csv
+```
+
+Convert with visualization:
+
+```bash
+python distribution_converter.py input/normal_data.csv output/weibull_fit.csv --plot
+```
+
+Convert any custom distribution:
+
+```bash
+python distribution_converter.py input/my_custom_distribution.csv output/weibull_fit.csv --plot
+```
+
 ### Running PBM Simulation
 
 ```python
@@ -112,12 +189,17 @@ pbm.export_distribution(evolved_distributions[-1], 'final_distribution.csv')
 
 ## File Descriptions
 
+- `distribution_converter.py`: Convert any distribution to Weibull distribution
 - `weibull_visualizer.py`: Interactive single Weibull distribution visualizer
 - `weibull_overlay_visualizer.py`: Interactive two-distribution overlay visualizer
+- `normal_visualizer.py`: Interactive single Normal distribution visualizer
 - `pbm_model.py`: Population Balance Model implementation
+- `create_test_data.py`: Utility script to generate test distribution data
 - `weibull_data.csv`: Example/initial Weibull distribution data
 - `evolved_distribution.csv`: Output from PBM simulation
 - `pbm_evolution.png`: Visualization of PBM evolution
+- `input/`: Directory containing input distribution data files
+- `output/`: Directory for generated output files
 - `.gitignore`: Git ignore file for Python projects
 
 ## Mathematical Background
@@ -131,6 +213,16 @@ f(x; k, λ) = (k/λ) * (x/λ)^(k-1) * exp(-(x/λ)^k)
 Where:
 - k: shape parameter
 - λ: scale parameter
+
+### Normal Distribution
+
+The Normal distribution PDF is given by:
+
+f(x; μ, σ) = (1/(σ√(2π))) * exp(-((x-μ)^2)/(2σ^2))
+
+Where:
+- μ: mean
+- σ: standard deviation
 
 ### Population Balance Model
 

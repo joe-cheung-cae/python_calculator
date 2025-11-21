@@ -62,7 +62,7 @@ This project provides tools for visualizing Weibull probability distributions an
 1. Clone or download the repository
 2. Install dependencies:
    ```bash
-   pip install numpy scipy matplotlib
+   pip install -r requirements.txt
    ```
 
 ## Usage
@@ -170,6 +170,16 @@ This will:
 - Export final distribution to `evolved_distribution.csv`
 - Generate visualization in `pbm_evolution.png`
 
+### Create Test Data
+
+Generate additional test distribution data:
+
+```bash
+python create_test_data.py
+```
+
+This will create CSV files for normal, exponential, and gamma distributions in the `input/` directory with predefined parameters.
+
 ## Examples
 
 ### Creating Initial Distribution
@@ -255,6 +265,7 @@ pbm.export_distribution(evolved_distributions[-1], 'final_distribution.csv')
 - `normal_visualizer.py`: Interactive single Normal distribution visualizer
 - `pbm_model.py`: Population Balance Model implementation
 - `create_test_data.py`: Utility script to generate test distribution data
+- `requirements.txt`: List of Python dependencies
 - `weibull_data.csv`: Example/initial Weibull distribution data
 - `evolved_distribution.csv`: Output from PBM simulation
 - `pbm_evolution.png`: Visualization of PBM evolution
